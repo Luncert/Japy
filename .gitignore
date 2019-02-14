@@ -25,3 +25,9 @@ hs_err_pid*
 # antlr
 .antlr
 target
+
+# java
+.vscode
+.settings
+.classpath
+.project

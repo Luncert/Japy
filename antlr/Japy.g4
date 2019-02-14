@@ -7,6 +7,118 @@
  */
 grammar Japy;
 
+tokens { INDENT, DEDENT }
+
+@lexer::header {
+	import java.util.List;
+	import java.util.ArrayList;
+	import java.util.stream.Collectors;
+	import org.antlr.v4.runtime.Token;
+}
+
+@lexer::members {
+
+	private List<Token> token_queue = new ArrayList<>();
+	private List<Integer> indents = new ArrayList<>();
+	private int opened = 0;
+	private Token last_token = null;
+
+	@Override
+	public void reset() {
+		// A queue where extra tokens are pushed on (see the NEWLINE lexer rule).
+		token_queue.clear();
+
+		// The stack that keeps track of the indentation level.
+		indents.clear();
+
+		// The amount of opened braces, brackets and parenthesis.
+		opened = 0;
+
+		super.reset();
+	};
+
+	@Override
+	public void emit(Token token) {
+		if (token != null) {
+			super.emit(token);
+		} else {
+			super.emit();
+		}
+		token_queue.add(token);
+	};
+
+	@Override
+	public Token nextToken() {
+		// Check if the end-of-file is ahead and there are still some DEDENTS expected.
+		if (this._input.LA(1) == JapyParser.EOF && indents.size() > 0) {
+
+			// Remove any trailing EOF tokens from our buffer.
+			token_queue = token_queue.stream()
+							.filter((token) -> token.getType() != JapyParser.EOF)
+							.collect(Collectors.toList());
+
+			// First emit an extra line break that serves as the end of the statement.
+			emit(commonToken(JapyParser.NEWLINE, "\n"));
+
+			// Now emit as much DEDENT tokens as needed.
+			while (indents.size() > 0) {
+				emit(createDedent());
+				indents.remove(0);
+			}
+
+			// Put the EOF back on the token stream.
+			emit(commonToken(JapyParser.EOF, "<EOF>"));
+		}
+
+		Token next = super.nextToken();
+
+		if (next.getChannel() == Token.DEFAULT_CHANNEL) {
+			// Keep track of the last token on the default channel.
+			last_token = next;
+		}
+
+		Token tmp;
+		return (tmp = token_queue.remove(0)) == null ? next : tmp;
+	}
+
+	/* Create Dedent Token */
+	private Token createDedent() {
+		CommonToken dedent = commonToken(JapyParser.DEDENT, "");
+		if (last_token != null) {
+			dedent.setLine(last_token.getLine());
+		}
+		return dedent;
+	}
+ 
+	/* Create CommonToken */
+	private CommonToken commonToken(int type, String text) {
+		int stop = this._tokenStartCharIndex - 1;
+		int start = text.length() > 0 ? stop - text.length() + 1 : stop;
+		CommonToken token = new CommonToken(this._tokenFactorySourcePair, type, 
+										Lexer.DEFAULT_TOKEN_CHANNEL, start, stop);
+		token.setText(text);
+		return token;
+	}
+
+	/* Calculate TAB's number in @Param{ whitespace } */
+	private int getIndentationCount(String whitespace) {
+		int count = 0;
+		for (int i = 0; i < whitespace.length(); i++) {
+			if (whitespace.charAt(i) == '\t') {
+				count += 8 - count % 8;
+			} else {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	private boolean atStartOfInput() {
+		return this._tokenStartCharIndex == 0;
+	}
+
+}
+
 /*
  * Productions from §3 (Lexical Structure)
  */
@@ -264,7 +376,7 @@ classDeclaration
 	;
 
 normalClassDeclaration
-	:	classModifier* 'class' identifier typeParameters? superclass? superinterfaces? classBody
+	:	classModifier* 'class' identifier typeParameters? superclass? superinterfaces? ':' classBody
 	;
 
 classModifier
@@ -287,11 +399,11 @@ typeParameterList
 	;
 
 superclass
-	:	'-' classType
+	:	'>' classType
 	;
 
 superinterfaces
-	:	'implements' interfaceTypeList
+	:	'-' interfaceTypeList
 	;
 
 interfaceTypeList
@@ -299,7 +411,7 @@ interfaceTypeList
 	;
 
 classBody
-	:	'{' classBodyDeclaration* '}'
+	:	NEWLINE classBodyDeclaration*
 	;
 
 classBodyDeclaration
@@ -579,7 +691,7 @@ interfaceModifier
 	;
 
 extendsInterfaces
-	:	'-' interfaceTypeList
+	:	'>' interfaceTypeList
 	;
 
 interfaceBody
@@ -1423,6 +1535,53 @@ VOLATILE : 'volatile';
 WHILE : 'while';
 UNDER_SCORE : '_';//Introduced in Java 9
 
+NEWLINE
+ : ( {this.atStartOfInput()}? SPACES
+	| ( '\r'? '\n' | '\r' ) SPACES? )
+	{
+		if (this._text == null)
+			return;
+
+		String newLine = this._text.replaceAll("[^\r\n]+", "");
+		String spaces = this._text.replace("[\r\n]+", "");
+		int next = this._input.LA(1);
+
+		if (this.opened > 0
+			|| next == 13 /* '\r' */
+			|| next == 10 /* '\n' */
+			|| next == 35 /* '#' */)
+		{
+			// If we're inside a list or on a blank line, ignore all indents,
+			// dedents and line breaks.
+			this.skip();
+		} else {
+			this.emit(this.commonToken(JapyParser.NEWLINE, newLine));
+
+			int indent = this.getIndentationCount(spaces);
+			int previous = this.indents.size() > 0 ?
+							this.indents.get(this.indents.size() - 1) : 0;
+
+			if (indent == previous) {
+				// skip indents of the same size as the present indent-size
+				this.skip();
+			} else if (indent > previous) {
+				this.indents.add(indent);
+				this.emit(this.commonToken(JapyParser.INDENT, spaces));
+			} else {
+				// Possibly emit more than 1 DEDENT token.
+				while (this.indents.size() > 0 && this.indents.get(indents.size() - 1) > indent) {
+					this.emit(this.createDedent());
+					this.indents.remove(0);
+				}
+			}
+		}
+	}
+ ;
+
+fragment SPACES
+ : [\t]+
+ ;
+
 // §3.10.1 Integer Literals
 
 IntegerLiteral
@@ -1793,7 +1952,7 @@ JavaLetterOrDigit
 // Whitespace (NOTE: exclude TAB) and comments
 //
 
-WS  :  [ \r\n\u000C]+ -> skip
+WS  :  [ \u000C]+ -> skip
     ;
 
 COMMENT
