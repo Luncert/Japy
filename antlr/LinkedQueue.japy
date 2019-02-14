@@ -1,0 +1,58 @@
+
+public class LinkedQueue > Queue - Iterable, Serializable:
+
+    private static class Node:
+        Object data
+        Node next
+       
+        Node(Object data):
+            this.data = data
+       
+        public String toString():
+            return "LinkedQueueNode[data: " + data + ", next: " + next + "]"
+
+    Node head, tail
+
+    int size
+
+    public int size(): return size
+
+    public boolean isEmpty(): return size == 0
+
+    public void enQueue(Object data):
+        Node node = new Node(data)
+        if tail != null:
+            head = head.next = node
+        else:
+            tail = head = node
+        size++
+   
+    public Object deQueue():
+        if size == 0:
+            throw new NoSuchElementException("deQueue from empty queue")
+        Object data = tail.data
+        tail = tail.next
+        size--
+        return data
+   
+    public void reverse():
+        throw new UnsupportedOperationException("not suppoted now")
+   
+    public String toString():
+        StringBuilder builder = new StringBuilder().
+            append('[')
+        Node node = tail
+        while node != null:
+            builder.append(node.data).append(',')
+            node = node.next
+        int i
+        return (i = builder.length()) > 1 ?
+            builder.replace(i - 1, i, "]").toString() : "[]"
+   
+    public Iterator<Object> iterator(): return new Itr()
+
+    private class Itr - Iterator<Object>:
+
+        public boolean hasNext(): return size > 0
+
+        public Object next(): return deQueue()
