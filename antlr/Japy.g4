@@ -296,7 +296,7 @@ ambiguousName
  */
 
 compilationUnit
-	: NEWLINE*
+	: '\n'*
 	(ordinaryCompilation
 	|	modularCompilation)
 	;
@@ -310,7 +310,7 @@ modularCompilation
 	;
 
 packageDeclaration
-	:	packageModifier* 'package' packageName ';'
+	:	packageModifier* PACKAGE packageName
 	;
 
 packageModifier
@@ -325,19 +325,19 @@ importDeclaration
 	;
 
 singleTypeImportDeclaration
-	:	'import' typeName ';'
+	:	IMPORT typeName
 	;
 
 typeImportOnDemandDeclaration
-	:	'import' packageOrTypeName '.' '*' ';'
+	:	IMPORT packageOrTypeName '.' '*'
 	;
 
 singleStaticImportDeclaration
-	:	'import' 'static' typeName '.' identifier ';'
+	:	IMPORT STATIC typeName '.' identifier
 	;
 
 staticImportOnDemandDeclaration
-	:	'import' 'static' typeName '.' '*' ';'
+	:	IMPORT STATIC typeName '.' '*'
 	;
 
 typeDeclaration
