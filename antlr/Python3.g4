@@ -749,7 +749,7 @@ NEWLINE
   {
 		String text = this.getText();
 		String newLine = text.replaceAll("[^\r\n]+", "");
-		String spaces = text.replace("[\r\n]+", "");
+		String spaces = text.replaceAll("[\r\n]+", "");
 		int next = this._input.LA(1);
     
 		if (this.opened > 0

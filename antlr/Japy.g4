@@ -59,6 +59,7 @@ tokens { INDENT, DEDENT }
 
 			// First emit an extra line break that serves as the end of the statement.
 			emit(commonToken(JapyParser.NEWLINE, "\n"));
+			System.out.println("*");
 
 			// Now emit as much DEDENT tokens as needed.
 			while (!indents.isEmpty()) {
@@ -111,6 +112,19 @@ tokens { INDENT, DEDENT }
 			}
 		}
 		return count;
+	}
+
+	private boolean atStartOfInput() {
+		return this._tokenStartCharIndex == 0;
+	}
+
+	private void print(String s) {
+		System.out.print("(");
+		for (int i = 0; i < s.length(); i++) {
+			System.out.print((int) s.charAt(i));
+			System.out.print(" ");
+		}
+		System.out.print(")");
 	}
 
 }
@@ -296,8 +310,8 @@ ambiguousName
  */
 
 compilationUnit
-	: '\n'*
-	(ordinaryCompilation
+	: 
+	(NEWLINE | ordinaryCompilation
 	|	modularCompilation)
 	;
 
@@ -1511,19 +1525,22 @@ WHILE : 'while';
 UNDER_SCORE : '_';//Introduced in Java 9
 
 NEWLINE
- : '\n' [ \t]*
+	: ( {this.atStartOfInput()}? SPACES
+	| ('\r'? '\n' | '\r') SPACES? )
 	{
 		String text = this.getText();
-		String newLine = text.replaceAll("[^\r\n]+", "");
-		String spaces = text.replace("[\r\n]+", "");
 		int next = this._input.LA(1);
 
-		if (this.opened > 0 || next == 10 /* '\n' */) {
-			// If we're inside a list or on a blank line, ignore all indents,
-			// dedents and line breaks.
+		if (this.opened > 0
+			|| next == '/' /* '/' */
+			|| next == 13 /* '\r' */
+			|| next == 10 /* '\n' */)
+		{
+			// If we're inside a list or on a blank line, ignore all indents, dedents and line breaks.
 			this.skip();
 		} else {
-			this.emit(this.commonToken(JapyParser.NEWLINE, newLine));
+			String newLine = text.replaceAll("[^\r\n]+", ""); // exclude SPACES
+			String spaces = text.replaceAll("[\r\n]+", ""); // exclude '\r' '\n'
 
 			int indent = this.getIndentationCount(spaces);
 			int previous = !this.indents.isEmpty() ?
@@ -1534,6 +1551,8 @@ NEWLINE
 				this.skip();
 			} else if (indent > previous) {
 				// emit Indent
+
+			this.emit(this.commonToken(JapyParser.NEWLINE, newLine));
 				this.indents.add(indent);
 				this.emit(this.commonToken(JapyParser.INDENT, spaces));
 			} else {
@@ -1545,7 +1564,7 @@ NEWLINE
 			}
 		}
 	}
- ;
+	;
 
 // §3.10.1 Integer Literals
 
@@ -1556,143 +1575,116 @@ IntegerLiteral
 	|	BinaryIntegerLiteral
 	;
 
-fragment
-DecimalIntegerLiteral
+fragment DecimalIntegerLiteral
 	:	DecimalNumeral IntegerTypeSuffix?
 	;
 
-fragment
-HexIntegerLiteral
+fragment HexIntegerLiteral
 	:	HexNumeral IntegerTypeSuffix?
 	;
 
-fragment
-OctalIntegerLiteral
+fragment OctalIntegerLiteral
 	:	OctalNumeral IntegerTypeSuffix?
 	;
 
-fragment
-BinaryIntegerLiteral
+fragment BinaryIntegerLiteral
 	:	BinaryNumeral IntegerTypeSuffix?
 	;
 
-fragment
-IntegerTypeSuffix
+fragment IntegerTypeSuffix
 	:	[lL]
 	;
 
-fragment
-DecimalNumeral
+fragment DecimalNumeral
 	:	'0'
 	|	NonZeroDigit (Digits? | Underscores Digits)
 	;
 
-fragment
-Digits
+fragment Digits
 	:	Digit (DigitsAndUnderscores? Digit)?
 	;
 
-fragment
-Digit
+fragment Digit
 	:	'0'
 	|	NonZeroDigit
 	;
 
-fragment
-NonZeroDigit
+fragment NonZeroDigit
 	:	[1-9]
 	;
 
-fragment
-DigitsAndUnderscores
+fragment DigitsAndUnderscores
 	:	DigitOrUnderscore+
 	;
 
-fragment
-DigitOrUnderscore
+fragment DigitOrUnderscore
 	:	Digit
 	|	'_'
 	;
 
-fragment
-Underscores
+fragment Underscores
 	:	'_'+
 	;
 
-fragment
-HexNumeral
+fragment HexNumeral
 	:	'0' [xX] HexDigits
 	;
 
-fragment
-HexDigits
+fragment HexDigits
 	:	HexDigit (HexDigitsAndUnderscores? HexDigit)?
 	;
 
-fragment
-HexDigit
+fragment HexDigit
 	:	[0-9a-fA-F]
 	;
 
-fragment
-HexDigitsAndUnderscores
+fragment HexDigitsAndUnderscores
 	:	HexDigitOrUnderscore+
 	;
 
-fragment
-HexDigitOrUnderscore
+fragment HexDigitOrUnderscore
 	:	HexDigit
 	|	'_'
 	;
 
-fragment
-OctalNumeral
+fragment OctalNumeral
 	:	'0' Underscores? OctalDigits
 	;
 
-fragment
-OctalDigits
+fragment OctalDigits
 	:	OctalDigit (OctalDigitsAndUnderscores? OctalDigit)?
 	;
 
-fragment
-OctalDigit
+fragment OctalDigit
 	:	[0-7]
 	;
 
-fragment
-OctalDigitsAndUnderscores
+fragment OctalDigitsAndUnderscores
 	:	OctalDigitOrUnderscore+
 	;
 
-fragment
-OctalDigitOrUnderscore
+fragment OctalDigitOrUnderscore
 	:	OctalDigit
 	|	'_'
 	;
 
-fragment
-BinaryNumeral
+fragment BinaryNumeral
 	:	'0' [bB] BinaryDigits
 	;
 
-fragment
-BinaryDigits
+fragment BinaryDigits
 	:	BinaryDigit (BinaryDigitsAndUnderscores? BinaryDigit)?
 	;
 
-fragment
-BinaryDigit
+fragment BinaryDigit
 	:	[01]
 	;
 
-fragment
-BinaryDigitsAndUnderscores
+fragment BinaryDigitsAndUnderscores
 	:	BinaryDigitOrUnderscore+
 	;
 
-fragment
-BinaryDigitOrUnderscore
+fragment BinaryDigitOrUnderscore
 	:	BinaryDigit
 	|	'_'
 	;
@@ -1704,57 +1696,47 @@ FloatingPointLiteral
 	|	HexadecimalFloatingPointLiteral
 	;
 
-fragment
-DecimalFloatingPointLiteral
+fragment DecimalFloatingPointLiteral
 	:	Digits '.' Digits? ExponentPart? FloatTypeSuffix?
 	|	'.' Digits ExponentPart? FloatTypeSuffix?
 	|	Digits ExponentPart FloatTypeSuffix?
 	|	Digits FloatTypeSuffix
 	;
 
-fragment
-ExponentPart
+fragment ExponentPart
 	:	ExponentIndicator SignedInteger
 	;
 
-fragment
-ExponentIndicator
+fragment ExponentIndicator
 	:	[eE]
 	;
 
-fragment
-SignedInteger
+fragment SignedInteger
 	:	Sign? Digits
 	;
 
-fragment
-Sign
+fragment Sign
 	:	[+-]
 	;
 
-fragment
-FloatTypeSuffix
+fragment FloatTypeSuffix
 	:	[fFdD]
 	;
 
-fragment
-HexadecimalFloatingPointLiteral
+fragment HexadecimalFloatingPointLiteral
 	:	HexSignificand BinaryExponent FloatTypeSuffix?
 	;
 
-fragment
-HexSignificand
+fragment HexSignificand
 	:	HexNumeral '.'?
 	|	'0' [xX] HexDigits? '.' HexDigits
 	;
 
-fragment
-BinaryExponent
+fragment BinaryExponent
 	:	BinaryExponentIndicator SignedInteger
 	;
 
-fragment
-BinaryExponentIndicator
+fragment BinaryExponentIndicator
 	:	[pP]
 	;
 
@@ -1772,8 +1754,7 @@ CharacterLiteral
 	|	'\'' EscapeSequence '\''
 	;
 
-fragment
-SingleCharacter
+fragment SingleCharacter
 	:	~['\\\r\n]
 	;
 
@@ -1783,41 +1764,35 @@ StringLiteral
 	:	'"' StringCharacters? '"'
 	;
 
-fragment
-StringCharacters
+fragment StringCharacters
 	:	StringCharacter+
 	;
 
-fragment
-StringCharacter
+fragment StringCharacter
 	:	~["\\\r\n]
 	|	EscapeSequence
 	;
 
 // §3.10.6 Escape Sequences for Character and String Literals
 
-fragment
-EscapeSequence
+fragment EscapeSequence
 	:	'\\' [btnfr"'\\]
 	|	OctalEscape
     |   UnicodeEscape // This is not in the spec but prevents having to preprocess the input
 	;
 
-fragment
-OctalEscape
+fragment OctalEscape
 	:	'\\' OctalDigit
 	|	'\\' OctalDigit OctalDigit
 	|	'\\' ZeroToThree OctalDigit OctalDigit
 	;
 
-fragment
-ZeroToThree
+fragment ZeroToThree
 	:	[0-3]
 	;
 
 // This is not in the spec but prevents having to preprocess the input
-fragment
-UnicodeEscape
+fragment UnicodeEscape
     :   '\\' 'u'+ HexDigit HexDigit HexDigit HexDigit
     ;
 
@@ -1829,12 +1804,12 @@ NullLiteral
 
 // §3.11 Separators
 
-LPAREN : '(';
-RPAREN : ')';
-LBRACE : '{';
-RBRACE : '}';
-LBRACK : '[';
-RBRACK : ']';
+LPAREN : '(' {this.opened++;};
+RPAREN : ')' {this.opened--;};
+LBRACE : '{' {this.opened++;};
+RBRACE : '}' {this.opened--;};
+LBRACK : '[' {this.opened++;};
+RBRACK : ']' {this.opened--;};
 SEMI : ';';
 COMMA : ',';
 DOT : '.';
@@ -1891,8 +1866,7 @@ Identifier
 	:	JavaLetter JavaLetterOrDigit*
 	;
 
-fragment
-JavaLetter
+fragment JavaLetter
 	:	[a-zA-Z$_] // these are the "java letters" below 0x7F
 	|	// covers all characters above 0x7F which are not a surrogate
 		~[\u0000-\u007F\uD800-\uDBFF]
@@ -1902,8 +1876,7 @@ JavaLetter
 		{Character.isJavaIdentifierStart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
 	;
 
-fragment
-JavaLetterOrDigit
+fragment JavaLetterOrDigit
 	:	[a-zA-Z0-9$_] // these are the "java letters or digits" below 0x7F
 	|	// covers all characters above 0x7F which are not a surrogate
 		~[\u0000-\u007F\uD800-\uDBFF]
@@ -1917,13 +1890,22 @@ JavaLetterOrDigit
 // Whitespace (NOTE: exclude TAB) and comments
 //
 
-WS  :  [ \r\u000C]+ -> skip
+SKIP_
+	:	( SPACES | COMMENT | LINE_COMMENT | LINE_JOINING ) -> skip
+	;
+
+fragment SPACES
+	:	[ \t]+
+	;
+
+fragment COMMENT
+    :   '/*' .*? '*/'
     ;
 
-COMMENT
-    :   '/*' .*? '*/' -> channel(HIDDEN)
+fragment LINE_COMMENT
+    :   '//' ~[\r\n]*
     ;
 
-LINE_COMMENT
-    :   '//' ~[\r\n]* -> channel(HIDDEN)
-    ;
+fragment LINE_JOINING
+	:	'\\' SPACES? ( '\r'? '\n' | '\r' )
+	;

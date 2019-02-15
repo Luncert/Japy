@@ -85,7 +85,7 @@ test_parser.add_argument('--tokens', '-tokens', help='grun params: 打印出词�
 test_parser.add_argument('--trace',  '-trace',  help='grun params: 打印规则的名字以及进入和离开该规则时的词法符号', action='store_true')
 test_parser.add_argument('--SLL',    '-SLL',    help='grun params: 使用另外一种更快但功能稍弱的解析策略', action='store_true')
 test_parser.add_argument('--diagnostics',   '-diagnostics',    help='grun params: 开启解析过程中的调试信息输出', action='store_true')
-test_parser.add_argument('--encoding',   '-encoding',    help='grun params: 若当前的区域设定无法正确读取输入,使用这个选项制定测试组件输入文件的编码')
+test_parser.add_argument('--encoding',   '-encoding',    help='grun params: 若当前的区域设定无法正确读取输入，使用这个选项制定测试组件输入文件的编码')
 test_parser.add_argument('--ps',     '-ps',     help='grun params: 以PostScript格式生成可视化语法分析树，然后将其存储')
 test_parser.add_argument('--input',  '-i',      help='specify input file names', nargs='*', required=True)
 test_parser.add_argument('--update', '-u',      help='recompile after changing grammar file', action='store_true')
