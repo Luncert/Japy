@@ -61,9 +61,9 @@ tokens { INDENT, DEDENT }
 			emit(commonToken(JapyParser.NEWLINE, "\n"));
 
 			// Now emit as much DEDENT tokens as needed.
-			while (indents.size() > 0) {
+			while (!indents.isEmpty()) {
 				emit(createDedent());
-				indents.remove(0);
+				indents.remove(indents.size() - 1);
 			}
 
 			// Put the EOF back on the token stream.
@@ -103,7 +103,7 @@ tokens { INDENT, DEDENT }
 	/* Calculate TAB's number in @Param{ whitespace } */
 	private int getIndentationCount(String whitespace) {
 		int count = 0;
-		for (int i = 0; i < whitespace.length(); i++) {
+		for (int i = 0, limit = whitespace.length(); i < limit; i++) {
 			if (whitespace.charAt(i) == '\t') {
 				count += 8 - count % 8;
 			} else {
@@ -111,10 +111,6 @@ tokens { INDENT, DEDENT }
 			}
 		}
 		return count;
-	}
-
-	private boolean atStartOfInput() {
-		return this._tokenStartCharIndex == 0;
 	}
 
 }
@@ -300,8 +296,9 @@ ambiguousName
  */
 
 compilationUnit
-	:	ordinaryCompilation
-	|	modularCompilation
+	: NEWLINE*
+	(ordinaryCompilation
+	|	modularCompilation)
 	;
 
 ordinaryCompilation
@@ -376,18 +373,18 @@ classDeclaration
 	;
 
 normalClassDeclaration
-	:	classModifier* 'class' identifier typeParameters? superclass? superinterfaces? ':' classBody
+	:	classModifier* CLASS identifier typeParameters? superclass? superinterfaces? ':' classBody
 	;
 
 classModifier
 	:	annotation
-	|	'public'
-	|	'protected'
-	|	'private'
-	|	'abstract'
-	|	'static'
-	|	'final'
-	|	'strictfp'
+	|	PUBLIC
+	|	PROTECTED
+	|	PRIVATE
+	|	ABSTRACT
+	|	STATIC
+	|	FINAL
+	|	STRICTFP
 	;
 
 typeParameters
@@ -411,7 +408,7 @@ interfaceTypeList
 	;
 
 classBody
-	:	NEWLINE classBodyDeclaration*
+	:	NEWLINE+ INDENT classBodyDeclaration+ DEDENT
 	;
 
 classBodyDeclaration
@@ -430,7 +427,7 @@ classMemberDeclaration
 	;
 
 fieldDeclaration
-	:	fieldModifier* unannType variableDeclaratorList ';'
+	:	fieldModifier* unannType variableDeclaratorList
 	;
 
 fieldModifier
@@ -528,20 +525,20 @@ unannArrayType
 	;
 
 methodDeclaration
-	:	methodModifier* methodHeader methodBody
+	:	methodModifier* methodHeader ':' methodBody
 	;
 
 methodModifier
 	:	annotation
-	|	'public'
-	|	'protected'
-	|	'private'
-	|	'abstract'
-	|	'static'
-	|	'final'
-	|	'synchronized'
-	|	'native'
-	|	'strictfp'
+	|	PUBLIC
+	|	PROTECTED
+	|	PRIVATE
+	|	ABSTRACT
+	|	STATIC
+	|	FINAL
+	|	SYNCHRONIZED
+	|	NATIVE
+	|	STRICTFP
 	;
 
 methodHeader
@@ -551,7 +548,7 @@ methodHeader
 
 result
 	:	unannType
-	|	'void'
+	|	VOID
 	;
 
 methodDeclarator
@@ -575,7 +572,7 @@ formalParameter
 
 variableModifier
 	:	annotation
-	|	'final'
+	|	FINAL
 	;
 
 lastFormalParameter
@@ -584,11 +581,11 @@ lastFormalParameter
 	;
 
 receiverParameter
-	:	annotation* unannType (identifier '.')? 'this'
+	:	annotation* unannType (identifier '.')? THIS
 	;
 
 throws_
-	:	'throws' exceptionTypeList
+	:	THROWS exceptionTypeList
 	;
 
 exceptionTypeList
@@ -601,27 +598,27 @@ exceptionType
 	;
 
 methodBody
-	:	block
-	|	';'
+	:	statement
+	|	NEWLINE+ INDENT blockStatements DEDENT
 	;
 
 instanceInitializer
-	:	block
+	:	blockStatements
 	;
 
 staticInitializer
-	:	'static' block
+	:	STATIC ':' suite
 	;
 
 constructorDeclaration
-	:	constructorModifier* constructorDeclarator throws_? constructorBody
+	:	constructorModifier* constructorDeclarator throws_? ':' constructorBody
 	;
 
 constructorModifier
 	:	annotation
-	|	'public'
-	|	'protected'
-	|	'private'
+	|	PUBLIC
+	|	PROTECTED
+	|	PRIVATE
 	;
 
 constructorDeclarator
@@ -633,22 +630,23 @@ simpleTypeName
 	;
 
 constructorBody
-	:	'{' explicitConstructorInvocation? blockStatements? '}'
+	:	statement
+	|	NEWLINE+ INDENT explicitConstructorInvocation? blockStatements? DEDENT
 	;
 
 explicitConstructorInvocation
-	:	typeArguments? 'this' '(' argumentList? ')' ';'
-	|	typeArguments? 'super' '(' argumentList? ')' ';'
-	|	expressionName '.' typeArguments? 'super' '(' argumentList? ')' ';'
-	|	primary '.' typeArguments? 'super' '(' argumentList? ')' ';'
+	:	typeArguments? THIS '(' argumentList? ')' ';'
+	|	typeArguments? SUPER '(' argumentList? ')' ';'
+	|	expressionName '.' typeArguments? SUPER '(' argumentList? ')' ';'
+	|	primary '.' typeArguments? SUPER '(' argumentList? ')' ';'
 	;
 
 enumDeclaration
-	:	classModifier* 'enum' identifier superinterfaces? enumBody
+	:	classModifier* ENUM identifier superinterfaces? ':' enumBody
 	;
 
 enumBody
-	:	'{' enumConstantList? ','? enumBodyDeclarations? '}'
+	:	NEWLINE+ INDENT enumConstantList? ','? enumBodyDeclarations? DEDENT
 	;
 
 enumConstantList
@@ -656,7 +654,7 @@ enumConstantList
 	;
 
 enumConstant
-	:	enumConstantModifier* identifier ('(' argumentList? ')')? classBody?
+	:	enumConstantModifier* identifier ('(' argumentList? ')')? ':' classBody?
 	;
 
 enumConstantModifier
@@ -677,17 +675,17 @@ interfaceDeclaration
 	;
 
 normalInterfaceDeclaration
-	:	interfaceModifier* 'interface' identifier typeParameters? extendsInterfaces? interfaceBody
+	:	interfaceModifier* INTERFACE identifier typeParameters? extendsInterfaces? ':' interfaceBody
 	;
 
 interfaceModifier
 	:	annotation
-	|	'public'
-	|	'protected'
-	|	'private'
-	|	'abstract'
-	|	'static'
-	|	'strictfp'
+	|	PUBLIC
+	|	PROTECTED
+	|	PRIVATE
+	|	ABSTRACT
+	|	STATIC
+	|	STRICTFP
 	;
 
 extendsInterfaces
@@ -695,7 +693,7 @@ extendsInterfaces
 	;
 
 interfaceBody
-	:	'{' interfaceMemberDeclaration* '}'
+	:	NEWLINE+ INDENT interfaceMemberDeclaration* DEDENT
 	;
 
 interfaceMemberDeclaration
@@ -703,40 +701,39 @@ interfaceMemberDeclaration
 	|	interfaceMethodDeclaration
 	|	classDeclaration
 	|	interfaceDeclaration
-	|	';'
 	;
 
 constantDeclaration
-	:	constantModifier* unannType variableDeclaratorList ';'
+	:	constantModifier* unannType variableDeclaratorList
 	;
 
 constantModifier
 	:	annotation
-	|	'public'
-	|	'static'
-	|	'final'
+	|	PUBLIC
+	|	STATIC
+	|	FINAL
 	;
 
 interfaceMethodDeclaration
-	:	interfaceMethodModifier* methodHeader methodBody
+	:	interfaceMethodModifier* methodHeader ':' methodBody
 	;
 
 interfaceMethodModifier
 	:	annotation
-	|	'public'
-	|	'private'//Introduced in Java 9
-	|	'abstract'
-	|	'default'
-	|	'static'
-	|	'strictfp'
+	|	PUBLIC
+	|	PRIVATE//Introduced in Java 9
+	|	ABSTRACT
+	|	DEFAULT
+	|	STATIC
+	|	STRICTFP
 	;
 
 annotationTypeDeclaration
-	:	interfaceModifier* '@' 'interface' identifier annotationTypeBody
+	:	interfaceModifier* AT INTERFACE identifier ':' annotationTypeBody
 	;
 
 annotationTypeBody
-	:	'{' annotationTypeMemberDeclaration* '}'
+	:	NEWLINE+ INDENT annotationTypeMemberDeclaration* DEDENT
 	;
 
 annotationTypeMemberDeclaration
@@ -744,21 +741,20 @@ annotationTypeMemberDeclaration
 	|	constantDeclaration
 	|	classDeclaration
 	|	interfaceDeclaration
-	|	';'
 	;
 
 annotationTypeElementDeclaration
-	:	annotationTypeElementModifier* unannType identifier '(' ')' dims? defaultValue? ';'
+	:	annotationTypeElementModifier* unannType identifier '(' ')' dims? defaultValue?
 	;
 
 annotationTypeElementModifier
 	:	annotation
-	|	'public'
-	|	'abstract'
+	|	PUBLIC
+	|	ABSTRACT
 	;
 
 defaultValue
-	:	'default' elementValue
+	:	DEFAULT elementValue
 	;
 
 annotation
@@ -768,7 +764,7 @@ annotation
 	;
 
 normalAnnotation
-	:	'@' typeName '(' elementValuePairList? ')'
+	:	AT typeName '(' elementValuePairList? ')'
 	;
 
 elementValuePairList
@@ -794,11 +790,11 @@ elementValueList
 	;
 
 markerAnnotation
-	:	'@' typeName
+	:	AT typeName
 	;
 
 singleElementAnnotation
-	:	'@' typeName '(' elementValue ')'
+	:	AT typeName '(' elementValue ')'
 	;
 
 /*
@@ -817,10 +813,6 @@ variableInitializerList
  * Productions from §14 (Blocks and Statements)
  */
 
-block
-	:	'{' blockStatements? '}'
-	;
-
 blockStatements
 	:	blockStatement+
 	;
@@ -832,36 +824,25 @@ blockStatement
 	;
 
 localVariableDeclarationStatement
-	:	localVariableDeclaration ';'
+	:	localVariableDeclaration
 	;
 
 localVariableDeclaration
 	:	variableModifier* unannType variableDeclaratorList
 	;
 
-statement
-	:	statementWithoutTrailingSubstatement
-	|	labeledStatement
-	|	ifThenStatement
-	|	ifThenElseStatement
-	|	whileStatement
-	|	forStatement
+suite
+	:	(simpleStatement | NEWLINE+ INDENT statement+ DEDENT)
 	;
 
-statementNoShortIf
-	:	statementWithoutTrailingSubstatement
-	|	labeledStatementNoShortIf
-	|	ifThenElseStatementNoShortIf
-	|	whileStatementNoShortIf
-	|	forStatementNoShortIf
+simpleStatement
+	:	smallStatement (';' smallStatement)* ';'? NEWLINE+
 	;
 
-statementWithoutTrailingSubstatement
-	:	block
-	|	emptyStatement
+smallStatement
+	:	passStatement
 	|	expressionStatement
 	|	assertStatement
-	|	switchStatement
 	|	doStatement
 	|	breakStatement
 	|	continueStatement
@@ -869,22 +850,39 @@ statementWithoutTrailingSubstatement
 	|	synchronizedStatement
 	|	throwStatement
 	|	tryStatement
+	|	ifStatement
+	|	whileStatement
+	|	forStatement
 	;
 
-emptyStatement
-	:	';'
+statement
+	:	passStatement
+	|	expressionStatement
+	|	assertStatement
+	|	doStatement
+	|	breakStatement
+	|	continueStatement
+	|	returnStatement
+	|	synchronizedStatement
+	|	throwStatement
+	|	tryStatement
+	|	ifStatement
+	|	whileStatement
+	|	forStatement
+	|	switchStatement
+	|	labeledStatement
+	;
+
+passStatement
+	:	PASS
 	;
 
 labeledStatement
 	:	identifier ':' statement
 	;
 
-labeledStatementNoShortIf
-	:	identifier ':' statementNoShortIf
-	;
-
 expressionStatement
-	:	statementExpression ';'
+	:	statementExpression
 	;
 
 statementExpression
@@ -897,33 +895,21 @@ statementExpression
 	|	classInstanceCreationExpression
 	;
 
-ifThenStatement
-	:	'if' '(' expression ')' statement
-	;
-
-ifThenElseStatement
-	:	'if' '(' expression ')' statementNoShortIf 'else' statement
-	;
-
-ifThenElseStatementNoShortIf
-	:	'if' '(' expression ')' statementNoShortIf 'else' statementNoShortIf
-	;
-
 assertStatement
-	:	'assert' expression ';'
-	|	'assert' expression ':' expression ';'
+	:	ASSERT expression
+	|	ASSERT expression ':' expression
 	;
 
 switchStatement
-	:	'switch' '(' expression ')' switchBlock
+	:	SWITCH expression ':' switchBlock
 	;
 
 switchBlock
-	:	'{' switchBlockStatementGroup* switchLabel* '}'
+	:	NEWLINE+ INDENT switchBlockStatementGroup* switchLabel* DEDENT
 	;
 
 switchBlockStatementGroup
-	:	switchLabels blockStatements
+	:	NEWLINE+ INDENT switchLabels blockStatements DEDENT
 	;
 
 switchLabels
@@ -931,25 +917,25 @@ switchLabels
 	;
 
 switchLabel
-	:	'case' constantExpression ':'
-	|	'case' enumConstantName ':'
-	|	'default' ':'
+	:	NEWLINE+ CASE constantExpression ':'
+	|	NEWLINE+ CASE enumConstantName ':'
+	|	NEWLINE+ DEFAULT ':'
 	;
 
 enumConstantName
 	:	identifier
 	;
 
-whileStatement
-	:	'while' '(' expression ')' statement
+ifStatement
+	:	IF expression ':' suite (ELSE IF expression ':' suite)* (ELSE ':' suite)?
 	;
 
-whileStatementNoShortIf
-	:	'while' '(' expression ')' statementNoShortIf
+whileStatement
+	:	WHILE expression ':' suite
 	;
 
 doStatement
-	:	'do' statement 'while' '(' expression ')' ';'
+	:	DO WHILE expression expression ':' suite
 	;
 
 forStatement
@@ -957,17 +943,8 @@ forStatement
 	|	enhancedForStatement
 	;
 
-forStatementNoShortIf
-	:	basicForStatementNoShortIf
-	|	enhancedForStatementNoShortIf
-	;
-
 basicForStatement
-	:	'for' '(' forInit? ';' expression? ';' forUpdate? ')' statement
-	;
-
-basicForStatementNoShortIf
-	:	'for' '(' forInit? ';' expression? ';' forUpdate? ')' statementNoShortIf
+	: FOR forInit? ';' expression? ';' forUpdate? ':' suite
 	;
 
 forInit
@@ -984,36 +961,32 @@ statementExpressionList
 	;
 
 enhancedForStatement
-	:	'for' '(' variableModifier* unannType variableDeclaratorId ':' expression ')' statement
-	;
-
-enhancedForStatementNoShortIf
-	:	'for' '(' variableModifier* unannType variableDeclaratorId ':' expression ')' statementNoShortIf
+	:	FOR variableModifier* unannType variableDeclaratorId IN expression ':' suite
 	;
 
 breakStatement
-	:	'break' identifier? ';'
+	:	BREAK identifier?
 	;
 
 continueStatement
-	:	'continue' identifier? ';'
+	:	CONTINUE identifier?
 	;
 
 returnStatement
-	:	'return' expression? ';'
+	:	RETURN expression?
 	;
 
 throwStatement
-	:	'throw' expression ';'
+	:	THROW expression
 	;
 
 synchronizedStatement
-	:	'synchronized' '(' expression ')' block
+	:	SYNCHRONIZED expression ':' suite
 	;
 
 tryStatement
-	:	'try' block catches
-	|	'try' block catches? finally_
+	:	TRY ':' suite catches
+	|	TRY ':' suite catches? finally_
 	|	tryWithResourcesStatement
 	;
 
@@ -1022,7 +995,7 @@ catches
 	;
 
 catchClause
-	:	'catch' '(' catchFormalParameter ')' block
+	:	CATCH catchFormalParameter ':' suite
 	;
 
 catchFormalParameter
@@ -1034,11 +1007,11 @@ catchType
 	;
 
 finally_
-	:	'finally' block
+	:	FINALLY ':' suite
 	;
 
 tryWithResourcesStatement
-	:	'try' resourceSpecification block catches? finally_?
+	:	TRY resourceSpecification ':' suite catches? finally_?
 	;
 
 resourceSpecification
@@ -1080,8 +1053,8 @@ primary
 primaryNoNewArray
 	:	literal
 	|	classLiteral
-	|	'this'
-	|	typeName '.' 'this'
+	|	THIS
+	|	typeName '.' THIS
 	|	'(' expression ')'
 	|	classInstanceCreationExpression
 	|	fieldAccess
@@ -1096,10 +1069,10 @@ primaryNoNewArray_lf_arrayAccess
 
 primaryNoNewArray_lfno_arrayAccess
 	:	literal
-	|	typeName ('[' ']')* '.' 'class'
-	|	'void' '.' 'class'
-	|	'this'
-	|	typeName '.' 'this'
+	|	typeName ('[' ']')* '.' CLASS
+	|	VOID '.' CLASS
+	|	THIS
+	|	typeName '.' THIS
 	|	'(' expression ')'
 	|	classInstanceCreationExpression
 	|	fieldAccess
@@ -1128,11 +1101,11 @@ primaryNoNewArray_lf_primary_lfno_arrayAccess_lf_primary
 
 primaryNoNewArray_lfno_primary
 	:	literal
-	|	typeName ('[' ']')* '.' 'class'
-	|	unannPrimitiveType ('[' ']')* '.' 'class'
-	|	'void' '.' 'class'
-	|	'this'
-	|	typeName '.' 'this'
+	|	typeName ('[' ']')* '.' CLASS
+	|	unannPrimitiveType ('[' ']')* '.' CLASS
+	|	VOID '.' CLASS
+	|	THIS
+	|	typeName '.' THIS
 	|	'(' expression ')'
 	|	classInstanceCreationExpression_lfno_primary
 	|	fieldAccess_lfno_primary
@@ -1147,11 +1120,11 @@ primaryNoNewArray_lfno_primary_lf_arrayAccess_lfno_primary
 
 primaryNoNewArray_lfno_primary_lfno_arrayAccess_lfno_primary
 	:	literal
-	|	typeName ('[' ']')* '.' 'class'
-	|	unannPrimitiveType ('[' ']')* '.' 'class'
-	|	'void' '.' 'class'
-	|	'this'
-	|	typeName '.' 'this'
+	|	typeName ('[' ']')* '.' CLASS
+	|	unannPrimitiveType ('[' ']')* '.' CLASS
+	|	VOID '.' CLASS
+	|	THIS
+	|	typeName '.' THIS
 	|	'(' expression ')'
 	|	classInstanceCreationExpression_lfno_primary
 	|	fieldAccess_lfno_primary
@@ -1160,23 +1133,23 @@ primaryNoNewArray_lfno_primary_lfno_arrayAccess_lfno_primary
 	;
 
 classLiteral
-	:	(typeName|numericType|'boolean') ('[' ']')* '.' 'class'
-	|	'void' '.' 'class'
+	:	(typeName | numericType | BOOLEAN) ('[' ']')* '.' CLASS
+	|	VOID '.' CLASS
 	;
 
 classInstanceCreationExpression
-	:	'new' typeArguments? annotation* identifier ('.' annotation* identifier)* typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
-	|	expressionName '.' 'new' typeArguments? annotation* identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
-	|	primary '.' 'new' typeArguments? annotation* identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+	:	NEW typeArguments? annotation* identifier ('.' annotation* identifier)* typeArgumentsOrDiamond? '(' argumentList? ')' ':' classBody?
+	|	expressionName '.' NEW typeArguments? annotation* identifier typeArgumentsOrDiamond? '(' argumentList? ')' ':' classBody?
+	|	primary '.' NEW typeArguments? annotation* identifier typeArgumentsOrDiamond? '(' argumentList? ')' ':' classBody?
 	;
 
 classInstanceCreationExpression_lf_primary
-	:	'.' 'new' typeArguments? annotation* identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+	:	'.' NEW typeArguments? annotation* identifier typeArgumentsOrDiamond? '(' argumentList? ')' ':' classBody?
 	;
 
 classInstanceCreationExpression_lfno_primary
-	:	'new' typeArguments? annotation* identifier ('.' annotation* identifier)* typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
-	|	expressionName '.' 'new' typeArguments? annotation* identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+	:	NEW typeArguments? annotation* identifier ('.' annotation* identifier)* typeArgumentsOrDiamond? '(' argumentList? ')' ':' classBody?
+	|	expressionName '.' NEW typeArguments? annotation* identifier typeArgumentsOrDiamond? '(' argumentList? ')' ':' classBody?
 	;
 
 typeArgumentsOrDiamond
@@ -1186,8 +1159,8 @@ typeArgumentsOrDiamond
 
 fieldAccess
 	:	primary '.' identifier
-	|	'super' '.' identifier
-	|	typeName '.' 'super' '.' identifier
+	|	SUPER '.' identifier
+	|	typeName '.' SUPER '.' identifier
 	;
 
 fieldAccess_lf_primary
@@ -1195,8 +1168,8 @@ fieldAccess_lf_primary
 	;
 
 fieldAccess_lfno_primary
-	:	'super' '.' identifier
-	|	typeName '.' 'super' '.' identifier
+	:	SUPER '.' identifier
+	|	typeName '.' SUPER '.' identifier
 	;
 
 /*arrayAccess
@@ -1234,8 +1207,8 @@ methodInvocation
 	|	typeName '.' typeArguments? identifier '(' argumentList? ')'
 	|	expressionName '.' typeArguments? identifier '(' argumentList? ')'
 	|	primary '.' typeArguments? identifier '(' argumentList? ')'
-	|	'super' '.' typeArguments? identifier '(' argumentList? ')'
-	|	typeName '.' 'super' '.' typeArguments? identifier '(' argumentList? ')'
+	|	SUPER '.' typeArguments? identifier '(' argumentList? ')'
+	|	typeName '.' SUPER '.' typeArguments? identifier '(' argumentList? ')'
 	;
 
 methodInvocation_lf_primary
@@ -1246,8 +1219,8 @@ methodInvocation_lfno_primary
 	:	methodName '(' argumentList? ')'
 	|	typeName '.' typeArguments? identifier '(' argumentList? ')'
 	|	expressionName '.' typeArguments? identifier '(' argumentList? ')'
-	|	'super' '.' typeArguments? identifier '(' argumentList? ')'
-	|	typeName '.' 'super' '.' typeArguments? identifier '(' argumentList? ')'
+	|	SUPER '.' typeArguments? identifier '(' argumentList? ')'
+	|	typeName '.' SUPER '.' typeArguments? identifier '(' argumentList? ')'
 	;
 
 argumentList
@@ -1258,10 +1231,10 @@ methodReference
 	:	expressionName '::' typeArguments? identifier
 	|	referenceType '::' typeArguments? identifier
 	|	primary '::' typeArguments? identifier
-	|	'super' '::' typeArguments? identifier
-	|	typeName '.' 'super' '::' typeArguments? identifier
-	|	classType '::' typeArguments? 'new'
-	|	arrayType '::' 'new'
+	|	SUPER '::' typeArguments? identifier
+	|	typeName '.' SUPER '::' typeArguments? identifier
+	|	classType '::' typeArguments? NEW
+	|	arrayType '::' NEW
 	;
 
 methodReference_lf_primary
@@ -1271,17 +1244,17 @@ methodReference_lf_primary
 methodReference_lfno_primary
 	:	expressionName '::' typeArguments? identifier
 	|	referenceType '::' typeArguments? identifier
-	|	'super' '::' typeArguments? identifier
-	|	typeName '.' 'super' '::' typeArguments? identifier
-	|	classType '::' typeArguments? 'new'
-	|	arrayType '::' 'new'
+	|	SUPER '::' typeArguments? identifier
+	|	typeName '.' SUPER '::' typeArguments? identifier
+	|	classType '::' typeArguments? NEW
+	|	arrayType '::' NEW
 	;
 
 arrayCreationExpression
-	:	'new' primitiveType dimExprs dims?
-	|	'new' classOrInterfaceType dimExprs dims?
-	|	'new' primitiveType dims arrayInitializer
-	|	'new' classOrInterfaceType dims arrayInitializer
+	:	NEW primitiveType dimExprs dims?
+	|	NEW classOrInterfaceType dimExprs dims?
+	|	NEW primitiveType dims arrayInitializer
+	|	NEW classOrInterfaceType dims arrayInitializer
 	;
 
 dimExprs
@@ -1317,7 +1290,7 @@ inferredFormalParameterList
 
 lambdaBody
 	:	expression
-	|	block
+	|	'{' blockStatements '}'
 	;
 
 assignmentExpression
@@ -1392,7 +1365,7 @@ relationalExpression
 	|	relationalExpression '>' shiftExpression
 	|	relationalExpression '<=' shiftExpression
 	|	relationalExpression '>=' shiftExpression
-	|	relationalExpression 'instanceof' referenceType
+	|	relationalExpression INSTANCEOF referenceType
 	;
 
 shiftExpression
@@ -1509,12 +1482,14 @@ GOTO : 'goto';
 // IMPLEMENTS : '-';
 IMPORT : 'import';
 INSTANCEOF : 'instanceof';
+IN : 'in';
 INT : 'int';
 INTERFACE : 'interface';
 LONG : 'long';
 NATIVE : 'native';
 NEW : 'new';
 PACKAGE : 'package';
+PASS: 'pass';
 PRIVATE : 'private';
 PROTECTED : 'protected';
 PUBLIC : 'public';
@@ -1536,21 +1511,14 @@ WHILE : 'while';
 UNDER_SCORE : '_';//Introduced in Java 9
 
 NEWLINE
- : ( {this.atStartOfInput()}? SPACES
-	| ( '\r'? '\n' | '\r' ) SPACES? )
+ : '\n' [ \t]*
 	{
-		if (this._text == null)
-			return;
-
-		String newLine = this._text.replaceAll("[^\r\n]+", "");
-		String spaces = this._text.replace("[\r\n]+", "");
+		String text = this.getText();
+		String newLine = text.replaceAll("[^\r\n]+", "");
+		String spaces = text.replace("[\r\n]+", "");
 		int next = this._input.LA(1);
 
-		if (this.opened > 0
-			|| next == 13 /* '\r' */
-			|| next == 10 /* '\n' */
-			|| next == 35 /* '#' */)
-		{
+		if (this.opened > 0 || next == 10 /* '\n' */) {
 			// If we're inside a list or on a blank line, ignore all indents,
 			// dedents and line breaks.
 			this.skip();
@@ -1558,28 +1526,25 @@ NEWLINE
 			this.emit(this.commonToken(JapyParser.NEWLINE, newLine));
 
 			int indent = this.getIndentationCount(spaces);
-			int previous = this.indents.size() > 0 ?
+			int previous = !this.indents.isEmpty() ?
 							this.indents.get(this.indents.size() - 1) : 0;
 
 			if (indent == previous) {
 				// skip indents of the same size as the present indent-size
 				this.skip();
 			} else if (indent > previous) {
+				// emit Indent
 				this.indents.add(indent);
 				this.emit(this.commonToken(JapyParser.INDENT, spaces));
 			} else {
 				// Possibly emit more than 1 DEDENT token.
-				while (this.indents.size() > 0 && this.indents.get(indents.size() - 1) > indent) {
+				while (!this.indents.isEmpty() && this.indents.get(indents.size() - 1) > indent) {
 					this.emit(this.createDedent());
-					this.indents.remove(0);
+					this.indents.remove(this.indents.size() - 1);
 				}
 			}
 		}
 	}
- ;
-
-fragment SPACES
- : [\t]+
  ;
 
 // §3.10.1 Integer Literals
@@ -1952,7 +1917,7 @@ JavaLetterOrDigit
 // Whitespace (NOTE: exclude TAB) and comments
 //
 
-WS  :  [ \u000C]+ -> skip
+WS  :  [ \r\u000C]+ -> skip
     ;
 
 COMMENT

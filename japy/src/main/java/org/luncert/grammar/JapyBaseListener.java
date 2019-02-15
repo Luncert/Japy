@@ -1,5 +1,5 @@
 package org.luncert.grammar;
-// Generated from Japy.g4 by ANTLR 4.7.1
+// Generated from Japy.g4 by ANTLR 4.7.2
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -1588,18 +1588,6 @@ public class JapyBaseListener implements JapyListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBlock(JapyParser.BlockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBlock(JapyParser.BlockContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterBlockStatements(JapyParser.BlockStatementsContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1648,6 +1636,42 @@ public class JapyBaseListener implements JapyListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSuite(JapyParser.SuiteContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSuite(JapyParser.SuiteContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSimpleStatement(JapyParser.SimpleStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSimpleStatement(JapyParser.SimpleStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSmallStatement(JapyParser.SmallStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSmallStatement(JapyParser.SmallStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStatement(JapyParser.StatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1660,37 +1684,13 @@ public class JapyBaseListener implements JapyListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStatementNoShortIf(JapyParser.StatementNoShortIfContext ctx) { }
+	@Override public void enterPassStatement(JapyParser.PassStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStatementNoShortIf(JapyParser.StatementNoShortIfContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStatementWithoutTrailingSubstatement(JapyParser.StatementWithoutTrailingSubstatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStatementWithoutTrailingSubstatement(JapyParser.StatementWithoutTrailingSubstatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterEmptyStatement(JapyParser.EmptyStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEmptyStatement(JapyParser.EmptyStatementContext ctx) { }
+	@Override public void exitPassStatement(JapyParser.PassStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1703,18 +1703,6 @@ public class JapyBaseListener implements JapyListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLabeledStatement(JapyParser.LabeledStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLabeledStatementNoShortIf(JapyParser.LabeledStatementNoShortIfContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLabeledStatementNoShortIf(JapyParser.LabeledStatementNoShortIfContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1739,42 +1727,6 @@ public class JapyBaseListener implements JapyListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStatementExpression(JapyParser.StatementExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIfThenStatement(JapyParser.IfThenStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIfThenStatement(JapyParser.IfThenStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIfThenElseStatement(JapyParser.IfThenElseStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIfThenElseStatement(JapyParser.IfThenElseStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIfThenElseStatementNoShortIf(JapyParser.IfThenElseStatementNoShortIfContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIfThenElseStatementNoShortIf(JapyParser.IfThenElseStatementNoShortIfContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1864,6 +1816,18 @@ public class JapyBaseListener implements JapyListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIfStatement(JapyParser.IfStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIfStatement(JapyParser.IfStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterWhileStatement(JapyParser.WhileStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1871,18 +1835,6 @@ public class JapyBaseListener implements JapyListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitWhileStatement(JapyParser.WhileStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterWhileStatementNoShortIf(JapyParser.WhileStatementNoShortIfContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWhileStatementNoShortIf(JapyParser.WhileStatementNoShortIfContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1912,18 +1864,6 @@ public class JapyBaseListener implements JapyListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterForStatementNoShortIf(JapyParser.ForStatementNoShortIfContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitForStatementNoShortIf(JapyParser.ForStatementNoShortIfContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterBasicForStatement(JapyParser.BasicForStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1931,18 +1871,6 @@ public class JapyBaseListener implements JapyListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBasicForStatement(JapyParser.BasicForStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterBasicForStatementNoShortIf(JapyParser.BasicForStatementNoShortIfContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBasicForStatementNoShortIf(JapyParser.BasicForStatementNoShortIfContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1991,18 +1919,6 @@ public class JapyBaseListener implements JapyListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEnhancedForStatement(JapyParser.EnhancedForStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterEnhancedForStatementNoShortIf(JapyParser.EnhancedForStatementNoShortIfContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEnhancedForStatementNoShortIf(JapyParser.EnhancedForStatementNoShortIfContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

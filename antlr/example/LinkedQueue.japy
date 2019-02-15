@@ -1,0 +1,12 @@
+
+public class LinkedQueue > Queue - Iterable, Serializable:
+
+    private static class Node:
+        Object data
+        Node next
+       
+        Node(Object data):
+            this.data = data
+       
+        public String toString():
+            return "LinkedQueueNode[data: " + data + ", next: " + next + "]"

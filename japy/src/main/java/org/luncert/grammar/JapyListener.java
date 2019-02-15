@@ -1,5 +1,5 @@
 package org.luncert.grammar;
-// Generated from Japy.g4 by ANTLR 4.7.1
+// Generated from Japy.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -1318,16 +1318,6 @@ public interface JapyListener extends ParseTreeListener {
 	 */
 	void exitVariableInitializerList(JapyParser.VariableInitializerListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link JapyParser#block}.
-	 * @param ctx the parse tree
-	 */
-	void enterBlock(JapyParser.BlockContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#block}.
-	 * @param ctx the parse tree
-	 */
-	void exitBlock(JapyParser.BlockContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link JapyParser#blockStatements}.
 	 * @param ctx the parse tree
 	 */
@@ -1368,6 +1358,36 @@ public interface JapyListener extends ParseTreeListener {
 	 */
 	void exitLocalVariableDeclaration(JapyParser.LocalVariableDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link JapyParser#suite}.
+	 * @param ctx the parse tree
+	 */
+	void enterSuite(JapyParser.SuiteContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JapyParser#suite}.
+	 * @param ctx the parse tree
+	 */
+	void exitSuite(JapyParser.SuiteContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JapyParser#simpleStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimpleStatement(JapyParser.SimpleStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JapyParser#simpleStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimpleStatement(JapyParser.SimpleStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JapyParser#smallStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterSmallStatement(JapyParser.SmallStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JapyParser#smallStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitSmallStatement(JapyParser.SmallStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link JapyParser#statement}.
 	 * @param ctx the parse tree
 	 */
@@ -1378,35 +1398,15 @@ public interface JapyListener extends ParseTreeListener {
 	 */
 	void exitStatement(JapyParser.StatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link JapyParser#statementNoShortIf}.
+	 * Enter a parse tree produced by {@link JapyParser#passStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterStatementNoShortIf(JapyParser.StatementNoShortIfContext ctx);
+	void enterPassStatement(JapyParser.PassStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link JapyParser#statementNoShortIf}.
+	 * Exit a parse tree produced by {@link JapyParser#passStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitStatementNoShortIf(JapyParser.StatementNoShortIfContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link JapyParser#statementWithoutTrailingSubstatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterStatementWithoutTrailingSubstatement(JapyParser.StatementWithoutTrailingSubstatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#statementWithoutTrailingSubstatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitStatementWithoutTrailingSubstatement(JapyParser.StatementWithoutTrailingSubstatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link JapyParser#emptyStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterEmptyStatement(JapyParser.EmptyStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#emptyStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitEmptyStatement(JapyParser.EmptyStatementContext ctx);
+	void exitPassStatement(JapyParser.PassStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JapyParser#labeledStatement}.
 	 * @param ctx the parse tree
@@ -1417,16 +1417,6 @@ public interface JapyListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLabeledStatement(JapyParser.LabeledStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link JapyParser#labeledStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void enterLabeledStatementNoShortIf(JapyParser.LabeledStatementNoShortIfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#labeledStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void exitLabeledStatementNoShortIf(JapyParser.LabeledStatementNoShortIfContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JapyParser#expressionStatement}.
 	 * @param ctx the parse tree
@@ -1447,36 +1437,6 @@ public interface JapyListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStatementExpression(JapyParser.StatementExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link JapyParser#ifThenStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterIfThenStatement(JapyParser.IfThenStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#ifThenStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitIfThenStatement(JapyParser.IfThenStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link JapyParser#ifThenElseStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterIfThenElseStatement(JapyParser.IfThenElseStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#ifThenElseStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitIfThenElseStatement(JapyParser.IfThenElseStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link JapyParser#ifThenElseStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void enterIfThenElseStatementNoShortIf(JapyParser.IfThenElseStatementNoShortIfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#ifThenElseStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void exitIfThenElseStatementNoShortIf(JapyParser.IfThenElseStatementNoShortIfContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JapyParser#assertStatement}.
 	 * @param ctx the parse tree
@@ -1548,6 +1508,16 @@ public interface JapyListener extends ParseTreeListener {
 	 */
 	void exitEnumConstantName(JapyParser.EnumConstantNameContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link JapyParser#ifStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfStatement(JapyParser.IfStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JapyParser#ifStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfStatement(JapyParser.IfStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link JapyParser#whileStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -1557,16 +1527,6 @@ public interface JapyListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitWhileStatement(JapyParser.WhileStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link JapyParser#whileStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void enterWhileStatementNoShortIf(JapyParser.WhileStatementNoShortIfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#whileStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void exitWhileStatementNoShortIf(JapyParser.WhileStatementNoShortIfContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JapyParser#doStatement}.
 	 * @param ctx the parse tree
@@ -1588,16 +1548,6 @@ public interface JapyListener extends ParseTreeListener {
 	 */
 	void exitForStatement(JapyParser.ForStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link JapyParser#forStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void enterForStatementNoShortIf(JapyParser.ForStatementNoShortIfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#forStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void exitForStatementNoShortIf(JapyParser.ForStatementNoShortIfContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link JapyParser#basicForStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -1607,16 +1557,6 @@ public interface JapyListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBasicForStatement(JapyParser.BasicForStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link JapyParser#basicForStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void enterBasicForStatementNoShortIf(JapyParser.BasicForStatementNoShortIfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#basicForStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void exitBasicForStatementNoShortIf(JapyParser.BasicForStatementNoShortIfContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JapyParser#forInit}.
 	 * @param ctx the parse tree
@@ -1657,16 +1597,6 @@ public interface JapyListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEnhancedForStatement(JapyParser.EnhancedForStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link JapyParser#enhancedForStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void enterEnhancedForStatementNoShortIf(JapyParser.EnhancedForStatementNoShortIfContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JapyParser#enhancedForStatementNoShortIf}.
-	 * @param ctx the parse tree
-	 */
-	void exitEnhancedForStatementNoShortIf(JapyParser.EnhancedForStatementNoShortIfContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JapyParser#breakStatement}.
 	 * @param ctx the parse tree
