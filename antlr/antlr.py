@@ -2,11 +2,12 @@
 # -*- coding:utf-8 -*-
 
 import os
+from os import path as Path
 import sys
 import argparse
 import shutil
 
-workpath = os.path.dirname(os.path.abspath(__file__))
+workpath = Path.dirname(Path.abspath(__file__))
 
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(help='commands')
@@ -19,16 +20,16 @@ def build(args):
 
     # 修改target目录下所有java文件的package行
     cwd = os.getcwd()
-    input_path = os.path.join(cwd, 'target')
-    output_path = os.path.join(cwd, args.output, 'src', 'main', 'java', *args.package.split('.'))
+    input_path = Path.join(cwd, 'target')
+    output_path = Path.join(cwd, args.output, 'src', 'main', 'java', *args.package.split('.'))
     for fileName in os.listdir(input_path):
-        filePath = os.path.join(input_path, fileName)
+        filePath = Path.join(input_path, fileName)
         if fileName.endswith('.java'):
             data = None
             with open(filePath, 'rb') as f:
                 data = f.read()
                 data = 'package org.luncert.grammar;\n' + data.decode('utf-8')
-            with open(os.path.join(output_path, fileName), 'wb') as f:
+            with open(Path.join(output_path, fileName), 'wb') as f:
                 f.write(data.encode('utf-8'))
 
 build_parser = subparsers.add_parser('build',   help='build java code')
@@ -48,10 +49,10 @@ def test(args):
 
     input_files = []
     for item in args.input:
-        filepath = os.path.join(workpath, item)
-        if os.path.isdir(filepath):
+        filepath = Path.join(workpath, item)
+        if Path.isdir(filepath):
             for filename in os.listdir(filepath):
-                input_files.append(os.path.join(filepath, filename))
+                input_files.append(Path.join(filepath, filename))
         else: input_files.append(filepath)
     grun_cmd += ' '.join(input_files)
 
@@ -93,12 +94,43 @@ test_parser.set_defaults(func=test)
 
 # clean commands
 def clean(args):
-    target_path = os.path.join(workpath, 'target')
-    if os.path.exists(target_path):
+    target_path = Path.join(workpath, 'target')
+    if Path.exists(target_path):
         shutil.rmtree(path='target')
 
 clean_parser = subparsers.add_parser('clean',   help='clean output')
 clean_parser.set_defaults(func=clean)
+
+# run commands
+class Grammar(object):
+    def __init__(self, name, content):
+        self.name = name
+        self.content = content.endswith(';')
+    
+    def __str__(self):
+        return 'Grammar [%s: %s]' % (self.name, self.content)
+
+def loadGrammars(base):
+    print(base)
+    for name in os.listdir(base):
+        if name.endswith('.py'):
+            path = Path.join(base, name)
+            if Path.isdir(path):
+                loadGrammars(path)
+            else:
+                __import__(path)
+
+
+def run(args):
+    if not Path.exists(args.entry):
+        raise Exception('target path doesn\' exist: ' + args.entry)
+    if not Path.isdir(args.entry):
+        raise Exception('target path is not a directory: ' + args.entry)
+    loadGrammars(args.entry)
+
+run_parser = subparsers.add_parser('run',   help='run antlr project')
+run_parser.add_argument('--entry',  '-e',   help='entry directory\'s path', required=True)
+run_parser.set_defaults(func=run)
 
 # parse
 

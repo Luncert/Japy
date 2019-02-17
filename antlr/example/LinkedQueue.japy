@@ -1,5 +1,10 @@
 
 public class LinkedQueue > Queue - Iterable, Serializable:
 
-    public String toString():
-        return "Hi!"
+    public void test():
+        // test for statment
+        // for int i = 0; i < 10; i++:
+            pass
+
+        for ;;: pass
+        for int i in items: System.out.println(i)

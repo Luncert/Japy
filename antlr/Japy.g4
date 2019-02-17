@@ -58,8 +58,7 @@ tokens { INDENT, DEDENT }
 							.collect(Collectors.toList());
 
 			// First emit an extra line break that serves as the end of the statement.
-			emit(commonToken(JapyParser.NEWLINE, "\n"));
-			System.out.println("*");
+			// emit(commonToken(JapyParser.NEWLINE, "\n"));
 
 			// Now emit as much DEDENT tokens as needed.
 			while (!indents.isEmpty()) {
@@ -116,15 +115,6 @@ tokens { INDENT, DEDENT }
 
 	private boolean atStartOfInput() {
 		return this._tokenStartCharIndex == 0;
-	}
-
-	private void print(String s) {
-		System.out.print("(");
-		for (int i = 0; i < s.length(); i++) {
-			System.out.print((int) s.charAt(i));
-			System.out.print(" ");
-		}
-		System.out.print(")");
 	}
 
 }
@@ -422,7 +412,7 @@ interfaceTypeList
 	;
 
 classBody
-	:	NEWLINE+ INDENT classBodyDeclaration+ DEDENT
+	:	NEWLINE INDENT classBodyDeclaration+ DEDENT
 	;
 
 classBodyDeclaration
@@ -613,7 +603,7 @@ exceptionType
 
 methodBody
 	:	statement
-	|	NEWLINE+ INDENT blockStatements DEDENT
+	|	NEWLINE INDENT blockStatements DEDENT
 	;
 
 instanceInitializer
@@ -645,7 +635,7 @@ simpleTypeName
 
 constructorBody
 	:	statement
-	|	NEWLINE+ INDENT explicitConstructorInvocation? blockStatements? DEDENT
+	|	NEWLINE INDENT explicitConstructorInvocation? blockStatements? DEDENT
 	;
 
 explicitConstructorInvocation
@@ -660,7 +650,7 @@ enumDeclaration
 	;
 
 enumBody
-	:	NEWLINE+ INDENT enumConstantList? ','? enumBodyDeclarations? DEDENT
+	:	NEWLINE INDENT enumConstantList? ','? enumBodyDeclarations? DEDENT
 	;
 
 enumConstantList
@@ -707,7 +697,7 @@ extendsInterfaces
 	;
 
 interfaceBody
-	:	NEWLINE+ INDENT interfaceMemberDeclaration* DEDENT
+	:	NEWLINE INDENT interfaceMemberDeclaration* DEDENT
 	;
 
 interfaceMemberDeclaration
@@ -747,7 +737,7 @@ annotationTypeDeclaration
 	;
 
 annotationTypeBody
-	:	NEWLINE+ INDENT annotationTypeMemberDeclaration* DEDENT
+	:	NEWLINE INDENT annotationTypeMemberDeclaration* DEDENT
 	;
 
 annotationTypeMemberDeclaration
@@ -846,11 +836,11 @@ localVariableDeclaration
 	;
 
 suite
-	:	(simpleStatement | NEWLINE+ INDENT statement+ DEDENT)
+	:	(simpleStatement | NEWLINE INDENT statement+ DEDENT)
 	;
 
 simpleStatement
-	:	smallStatement (';' smallStatement)* ';'? NEWLINE+
+	:	smallStatement (';' smallStatement)* ';'?
 	;
 
 smallStatement
@@ -919,11 +909,11 @@ switchStatement
 	;
 
 switchBlock
-	:	NEWLINE+ INDENT switchBlockStatementGroup* switchLabel* DEDENT
+	:	NEWLINE INDENT switchBlockStatementGroup* switchLabel* DEDENT
 	;
 
 switchBlockStatementGroup
-	:	NEWLINE+ INDENT switchLabels blockStatements DEDENT
+	:	NEWLINE INDENT switchLabels blockStatements DEDENT
 	;
 
 switchLabels
@@ -931,9 +921,9 @@ switchLabels
 	;
 
 switchLabel
-	:	NEWLINE+ CASE constantExpression ':'
-	|	NEWLINE+ CASE enumConstantName ':'
-	|	NEWLINE+ DEFAULT ':'
+	:	NEWLINE CASE constantExpression ':'
+	|	NEWLINE CASE enumConstantName ':'
+	|	NEWLINE DEFAULT ':'
 	;
 
 enumConstantName
@@ -1419,7 +1409,9 @@ preDecrementExpression
 	;
 
 unaryExpressionNotPlusMinus
-	:	postfixExpression
+	:	primary
+	|	expressionName
+	|	postfixExpression
 	|	'~' unaryExpression
 	|	'!' unaryExpression
 	|	castExpression
@@ -1434,16 +1426,14 @@ unaryExpressionNotPlusMinus
 */
 
 postfixExpression
-	:	(	primary
-		|	expressionName
-		)
-		(	postIncrementExpression_lf_postfixExpression
+	:	postIncrementExpression_lf_postfixExpression
 		|	postDecrementExpression_lf_postfixExpression
-		)*
 	;
 
 postIncrementExpression
-	:	postfixExpression '++'
+	:	(	primary
+		|	expressionName )
+		postfixExpression* '++'
 	;
 
 postIncrementExpression_lf_postfixExpression
@@ -1451,7 +1441,9 @@ postIncrementExpression_lf_postfixExpression
 	;
 
 postDecrementExpression
-	:	postfixExpression '--'
+	:	(	primary
+		|	expressionName )
+		postfixExpression* '--'
 	;
 
 postDecrementExpression_lf_postfixExpression
@@ -1532,7 +1524,8 @@ NEWLINE
 		int next = this._input.LA(1);
 
 		if (this.opened > 0
-			|| next == '/' /* '/' */
+			|| next == '/' && _input.LA(2) == '/' /* '//' */
+			|| next == '/' && _input.LA(2) == '*' /* '/*' */
 			|| next == 13 /* '\r' */
 			|| next == 10 /* '\n' */)
 		{
