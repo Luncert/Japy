@@ -1,12 +1,13 @@
 
-from antlr_unit import Grammars, Test
+from antlr_unit import Grammars, Grammar, Lexers, Lexer, Test
 
 @Grammars
 def keyvalue():
-    grs = {}
-    grs['keyvalue'] = "STRING ':' STRING"
-    grs['STRING'] = "~[:]*"
-    return grs
+    return Grammar('keyvalue', "STRING ':' STRING")
+
+@Lexers
+def STRING():
+    return Lexer('STRING', '~[:]+', fragment=False)
 
 @Test
 def keyvalue_test(ctx):

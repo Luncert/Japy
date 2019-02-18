@@ -108,19 +108,50 @@ class Grammar(object):
         self.content = content
     
     def __str__(self):
-        return 'Grammar(%s:%s)' % (self.name, self.content)
+        return '%s:%s;' % (self.name, self.content)
+
+class Lexer(object):
+    def __init__(self, name, content, fragment=False):
+        self.name = name
+        self.content = content
+        self.fragment = fragment
+    
+    def __str__(self):
+        ret = '%s:%s;'
+        if self.fragment:
+            ret = 'fragment ' + ret
+        return ret % (self.name, self.content)
 
 # Annotation
+antlr = {}
+
+def add_piece(piece):
+    name = piece.name
+    if name in antlr:
+        raise Exception('duplicated grammar name: %s (%s - %s)' + name, piece, antlr[name])
+    antlr[name] = piece
+
 class Grammars(object):
-    grs = {}
     def __init__(self, func):
-        grs = func()
-        if grs == None or not isinstance(grs, dict):
-            raise Exception('method decorated with @Grammars must return a dict')
-        for key, value in grs.items():
-            if key in Grammars.grs:
-                raise Exception('duplicated grammar name: ' + key)
-            Grammars.grs[key] = Grammar(key, value)
+        grammars = func()
+        if isinstance(grammars, list):
+            for grammar in grammars:
+                add_piece(grammar)
+        elif isinstance(grammars, Grammar):
+            add_piece(grammars)
+        else:
+            raise Exception('method decorated with @Grammar must return a list or a Lexer instance')
+
+class Lexers(object):
+    def __init__(self, func):
+        lexers = func()
+        if isinstance(lexers, list):
+            for lexer in lexers:
+                add_piece(lexer)
+        elif isinstance(lexers, Lexer):
+            add_piece(lexers)
+        else:
+            raise Exception('method decorated with @Lexers must return a list or a Lexer instance')
 
 class TestManager(object):
     def __init__(self):
@@ -161,9 +192,9 @@ class TestManager(object):
 
 class TestContext(object):
     def get_grammar(self, grammar_name):
-        if not grammar_name in Grammars.grs:
+        if not grammar_name in antlr:
             raise Exception('cound not found grammar with name: ' + grammar_name)
-        return Grammars.grs[grammar_name]
+        return antlr[grammar_name]
 
     def test(self, grammar_name, test_source, requires=(), **grun_config):
         '''
