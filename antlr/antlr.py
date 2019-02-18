@@ -124,9 +124,14 @@ if __name__ == "__main__":
         if not Path.isdir('src'):
             raise Exception('src is not a directory')
         loadGrammars('src')
-        test_manager.tests.print_tree()
+        if args.unit:
+            test_manager.test(args.unit)
 
-    run_parser = subparsers.add_parser('unit_test',   help='run antlr unit test')
+
+    run_parser = subparsers.add_parser('unit_test', help='run antlr unit test')
+    group = run_parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--unit',      '-u',   help='specify target test unit')
+    group.add_argument('--grammar',   '-g',   help='specify target test grammar')
     run_parser.set_defaults(func=unit_test)
 
     # parse
